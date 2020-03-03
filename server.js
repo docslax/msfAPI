@@ -3,9 +3,9 @@ const fs = require('fs');
 const app = express();
 const port = 3000;
 
-var characters = JSON.parse(fs.readFileSync('characters.min.json', 'utf8'));
-var gear = JSON.parse(fs.readFileSync('gear.min.json', 'utf8'));
-var char_detail = JSON.parse(fs.readFileSync('character_detail.min.json', 'utf8'));
+var characters = JSON.parse(fs.readFileSync('data/characters.min.json', 'utf8'));
+var gear = JSON.parse(fs.readFileSync('data/gear.min.json', 'utf8'));
+var char_detail = JSON.parse(fs.readFileSync('data/character_detail.min.json', 'utf8'));
 
 app.get('/character/:charId/:slotId', function (req, res) {
     res.send(characters[req.params["charId"]][req.params["slotId"]].slots);
