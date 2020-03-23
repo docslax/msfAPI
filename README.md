@@ -5,6 +5,6 @@ __Currently supported endpoints__
 
 - /characters
 - /character/:charId
-- /character/:charId/:slotId
+- /character/:charId/:gearLevelnpx
 - /gear/:gearId/:level?
 
