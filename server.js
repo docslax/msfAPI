@@ -1,7 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const app = express();
-const port = 3000;
+const port = 8888;
 
 var characters = JSON.parse(fs.readFileSync('data/characters.min.json', 'utf8'));
 var gear = JSON.parse(fs.readFileSync('data/gear.min.json', 'utf8'));
