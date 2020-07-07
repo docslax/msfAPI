@@ -8,6 +8,7 @@ var gear = JSON.parse(fs.readFileSync('data/gear.min.json', 'utf8'));
 var char_detail = JSON.parse(fs.readFileSync('data/character_detail.min.json', 'utf8'));
 var char_tags = JSON.parse(fs.readFileSync('data/character_tags.min.json', 'utf8'));
 
+//console.log(getTagDetails('Marvel80th'));
 
 app.get('/v1/characters', (req, res) => {
     var chars = [];
@@ -20,8 +21,39 @@ app.get('/v1/characters', (req, res) => {
 });
 
 app.get('/v1/character/:charId', (req, res) => {
-    res.send(getIgnoreCase(characters, req.params.charId));
+    var charData = {};
+
+    var charDetails = getIgnoreCase(char_detail, req.params.charId);
+    var charTraits = charDetails.traits;
+
+    delete charDetails.traits;
+
+    //build out the character tags
+    var newTraits = [];
+    charTraits.forEach((trait) => {
+        newTraits.push(getTagDetails(trait));
+    });
+
+    // want to do something later to push the origin trait to a higher level rather than an array.
+    charDetails["traits"] = newTraits;
+    charData["details"] = charDetails;
+    charData["levels"] = getIgnoreCase(characters, req.params.charId);
+
+    res.send(charData);
 });
+
+app.get('/v1/character/:charId/tags', (req, res) => {
+    var newTraits = [];
+
+    var charDetails = getIgnoreCase(char_detail, req.params.charId);
+    var charTraits = charDetails.traits;
+
+    charTraits.forEach((trait) => {
+        newTraits.push(getTagDetails(trait));
+    });
+
+    res.send(newTraits);
+})
 
 app.get('/v1/character/:charId/:tierLevel', (req, res) => {
     res.send(getIgnoreCase(characters, req.params.charId)[req.params.tierLevel].slots);
@@ -35,14 +67,14 @@ app.get('/v1/character/:charId/:tierLevel', (req, res) => {
 
     res.send();
 });*/
-
+/*
 app.get('/v1/detail/:charId', (req, res) => {
     res.send(getIgnoreCase(char_detail, req.params.charId));
 })
 
 app.get('/v1/detail/:charId/tags', (req, res) => {
     res.send(getIgnoreCase(getIgnoreCase(char_detail, req.params.charId), 'traits'));
-})
+})*/
 
 app.get('/v1/gear/:gearId/:tier?', (req, res) => {
     var tier = req.params.tier;
@@ -72,4 +104,20 @@ function getIgnoreCase(JSONObject, key) {
     }, {});
 
     return JSONObject[objKeys[key.toLowerCase()]];
+}
+
+function getTagDetails(tag) {
+    var foundTag = {};
+
+    Object.keys(char_tags).forEach((type) => {
+        char_tags[type].forEach((tagItem) => {
+            if (tagItem.value == tag) {
+                foundTag["type"] = type;
+                foundTag["name"] = tagItem.name;
+                foundTag["value"] = tagItem.value;
+            }
+        });
+    });
+
+    return foundTag;
 }
