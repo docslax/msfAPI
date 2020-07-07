@@ -23,8 +23,8 @@ app.get('/v1/character/:charId', (req, res) => {
     res.send(getIgnoreCase(characters, req.params.charId));
 });
 
-app.get('/v1/character/:charId/:tierId', (req, res) => {
-    res.send(getIgnoreCase(characters, req.params.charId)[req.params.tierId].slots);
+app.get('/v1/character/:charId/:tierLevel', (req, res) => {
+    res.send(getIgnoreCase(characters, req.params.charId)[req.params.tierLevel].slots);
 });
 
 /*app.get('/character/:charId/:tierId/:slotId', (req, res) => {
@@ -40,16 +40,16 @@ app.get('/v1/detail/:charId', (req, res) => {
     res.send(getIgnoreCase(char_detail, req.params.charId));
 })
 
-app.get('/v1/detail/:charId/traits', (req, res) => {
-    res.send(getIgnoreCase(char_detail, req.params.charId))
+app.get('/v1/detail/:charId/tags', (req, res) => {
+    res.send(getIgnoreCase(getIgnoreCase(char_detail, req.params.charId), 'traits'));
 })
 
-app.get('/v1/gear/:gearId/:level?', (req, res) => {
-    var level = req.params.level;
-    if (!level) {
+app.get('/v1/gear/:gearId/:tier?', (req, res) => {
+    var tier = req.params.tier;
+    if (!tier) {
         res.send(getIgnoreCase(gear, req.params.gearId));
     } else {
-        res.send(getIgnoreCase(gear, req.params.gearId)[req.params.level]);
+        res.send(getIgnoreCase(gear, req.params.gearId)[tier]);
     }
 });
 
