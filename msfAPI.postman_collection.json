@@ -1,0 +1,189 @@
+{
+	"info": {
+		"_postman_id": "78f18fa7-48b9-4fe6-9de0-e4c5f59e09aa",
+		"name": "msfAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "characters",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}:{{port}}/{{version}}/characters",
+					"host": [
+						"{{url}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"{{version}}",
+						"characters"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "character_detail",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}:{{port}}/{{version}}/character/:charId",
+					"host": [
+						"{{url}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"{{version}}",
+						"character",
+						":charId"
+					],
+					"query": [
+						{
+							"key": null,
+							"value": "Spiderman",
+							"disabled": true
+						}
+					],
+					"variable": [
+						{
+							"key": "charId",
+							"value": "spiderman"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "character_tags",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}:{{port}}/{{version}}/character/:charId/tags",
+					"host": [
+						"{{url}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"{{version}}",
+						"character",
+						":charId",
+						"tags"
+					],
+					"variable": [
+						{
+							"key": "charId",
+							"value": "captainamerica"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "char_tier_level",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}:{{port}}/{{version}}/character/:charId/:tierLevel",
+					"host": [
+						"{{url}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"{{version}}",
+						"character",
+						":charId",
+						":tierLevel"
+					],
+					"variable": [
+						{
+							"key": "charId",
+							"value": "spiderman"
+						},
+						{
+							"key": "tierLevel",
+							"value": "9"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "gear_details",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}:{{port}}/{{version}}/gear/:gearId/:tier?",
+					"host": [
+						"{{url}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"{{version}}",
+						"gear",
+						":gearId",
+						":tier"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null
+						}
+					],
+					"variable": [
+						{
+							"key": "gearId",
+							"value": "Bio_Focus"
+						},
+						{
+							"key": "tier",
+							"value": "8"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "tags",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}:{{port}}/{{version}}/tags/:type?",
+					"host": [
+						"{{url}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"{{version}}",
+						"tags",
+						":type"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": null
+						}
+					],
+					"variable": [
+						{
+							"key": "type",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
