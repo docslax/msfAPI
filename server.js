@@ -8,7 +8,13 @@ var gear = JSON.parse(fs.readFileSync('data/gear.min.json', 'utf8'));
 var char_detail = JSON.parse(fs.readFileSync('data/character_detail.min.json', 'utf8'));
 var char_tags = JSON.parse(fs.readFileSync('data/character_tags.min.json', 'utf8'));
 
-//console.log(getTagDetails('Marvel80th'));
+//when server first starts we need to 'operate' on the traits for each character
+setupCharacterTraits();
+
+/*app.use(function (req, res, next) {
+    console.log('Time:', Date.now());
+    next();
+})*/
 
 app.get('/v1/characters', (req, res) => {
     var chars = [];
@@ -20,61 +26,75 @@ app.get('/v1/characters', (req, res) => {
     res.send(chars);
 });
 
+app.get('/v1/character/:charId/tags/:type?', (req, res, next) => {
+    var type = req.params.type;
+
+    var charDetails = getIgnoreCase(char_detail, req.params.charId);
+    if (charDetails) {
+        var charTraits = charDetails.traits;
+
+        if (!type) {
+            res.send(charTraits);
+        } else {
+            res.send(getIgnoreCase(charTraits, type));
+        }
+    } else {
+        res.send('Character not found!')
+    }
+})
+
+app.get('/v1/character/:charId/items/:tierLevel?', (req, res, next) => {
+    var tierLevel = req.params.tierLevel;
+
+    //create a deep copy
+    var charInfo = JSON.parse(JSON.stringify(getIgnoreCase(characters, req.params.charId)));
+
+    if (charInfo) {
+        if (!tierLevel) {
+            for (level in charInfo) {
+                //delete the stats.. this is why we wanted a deep copy
+                delete charInfo[level].stats
+            }
+            res.send(charInfo);
+        } else {
+            res.send(charInfo[req.params.tierLevel].slots);
+        }
+    } else {
+        res.send('Character not found!')
+    }
+});
+
+app.get('/v1/character/:charId/stats/:tierLevel?', (req, res, next) => {
+    var tierLevel = req.params.tierLevel;
+
+    //create a deep copy
+    var charInfo = JSON.parse(JSON.stringify(getIgnoreCase(characters, req.params.charId)));
+
+    if (charInfo) {
+        if (!tierLevel) {
+            for (level in charInfo) {
+                //delete the slots.. this is why we wanted a deep copy
+                delete charInfo[level].slots
+            }
+            res.send(charInfo);
+        } else {
+            res.send(charInfo[req.params.tierLevel].stats);
+        }
+    } else {
+        res.send('Character not found!')
+    }
+});
+
 app.get('/v1/character/:charId', (req, res) => {
     var charData = {};
 
     var charDetails = getIgnoreCase(char_detail, req.params.charId);
-    var charTraits = charDetails.traits;
 
-    delete charDetails.traits;
-
-    //build out the character tags
-    var newTraits = [];
-    charTraits.forEach((trait) => {
-        newTraits.push(getTagDetails(trait));
-    });
-
-    // want to do something later to push the origin trait to a higher level rather than an array.
-    charDetails["traits"] = newTraits;
     charData["details"] = charDetails;
     charData["levels"] = getIgnoreCase(characters, req.params.charId);
 
     res.send(charData);
 });
-
-app.get('/v1/character/:charId/tags', (req, res) => {
-    var newTraits = [];
-
-    var charDetails = getIgnoreCase(char_detail, req.params.charId);
-    var charTraits = charDetails.traits;
-
-    charTraits.forEach((trait) => {
-        newTraits.push(getTagDetails(trait));
-    });
-
-    res.send(newTraits);
-})
-
-app.get('/v1/character/:charId/:tierLevel', (req, res) => {
-    res.send(getIgnoreCase(characters, req.params.charId)[req.params.tierLevel].slots);
-});
-
-/*app.get('/character/:charId/:tierId/:slotId', (req, res) => {
-    var slotId = req.params.slotId;
-    var slotLvlReq;
-
-    slotId = getIgnoreCase(characters, req.params.charId)[req.params.tierId].slots['slot' + req.params.slotId + '_ID']).key  }
-
-    res.send();
-});*/
-/*
-app.get('/v1/detail/:charId', (req, res) => {
-    res.send(getIgnoreCase(char_detail, req.params.charId));
-})
-
-app.get('/v1/detail/:charId/tags', (req, res) => {
-    res.send(getIgnoreCase(getIgnoreCase(char_detail, req.params.charId), 'traits'));
-})*/
 
 app.get('/v1/gear/:gearId/:tier?', (req, res) => {
     var tier = req.params.tier;
@@ -95,6 +115,11 @@ app.get('/v1/tags/:type?', (req, res) => {
     }
 })
 
+app.use(function(err, req, res, next) {
+    console.error(err.stack);
+    res.status(500).send('Something broke, check server logs');
+})
+
 app.listen(port, () => console.log(`App listening on port ${port}`));
 
 function getIgnoreCase(JSONObject, key) {
@@ -106,18 +131,33 @@ function getIgnoreCase(JSONObject, key) {
     return JSONObject[objKeys[key.toLowerCase()]];
 }
 
-function getTagDetails(tag) {
-    var foundTag = {};
+function getTagDetails(charTraits) {
+    var foundTag
+    var newJson = {};
 
-    Object.keys(char_tags).forEach((type) => {
-        char_tags[type].forEach((tagItem) => {
-            if (tagItem.value == tag) {
-                foundTag["type"] = type;
-                foundTag["name"] = tagItem.name;
-                foundTag["value"] = tagItem.value;
-            }
+    charTraits.forEach((trait) => {
+        Object.keys(char_tags).forEach((type) => {
+            if (newJson[type] === undefined) newJson[type] = [];
+            char_tags[type].forEach((tagItem) => {
+                if (tagItem.value == trait) {
+                    foundTag = {};
+                    //foundTag["type"] = type;
+                    foundTag["name"] = tagItem.name;
+                    foundTag["value"] = tagItem.value;
+                    newJson[type].push(foundTag);
+                }
+            });
         });
     });
+    //console.log(newJson);
+    return newJson;
+}
 
-    return foundTag;
+function setupCharacterTraits() {
+    for (key in char_detail) {
+        var characterDetails = char_detail[key]
+        var charTraits = characterDetails.traits;
+        delete characterDetails.traits;
+        characterDetails["traits"] = getTagDetails(charTraits);
+    }
 }
