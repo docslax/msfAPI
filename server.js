@@ -115,6 +115,7 @@ app.get('/v1/tags/:type?', (req, res) => {
     }
 })
 
+//error handler
 app.use(function(err, req, res, next) {
     console.error(err.stack);
     res.status(500).send('Something broke, check server logs');
